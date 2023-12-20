@@ -1,0 +1,42 @@
+#!/bin/bash
+
+# Function to extract and display allowed users from ACL
+get_allowed_users() {
+    file="$1"
+    acl_info=$(getfacl "$file" 2>/dev/null)
+
+    # Check if ACL information is available
+    if [ -n "$acl_info" ]; then
+        # Use awk to extract allowed users
+        allowed_users=$(echo "$acl_info" | grep -E "^user:" | awk -F: '{print $2}' | tr -d ' ')
+        
+        # Display results
+        echo "File: $file"
+        echo "Allowed Users: $allowed_users"
+        echo "------------------------"
+    else
+        echo "No ACL found for $file"
+    fi
+}
+
+# Check if files/directories are provided as arguments
+if [ "$#" -eq 0 ]; then
+    echo "Usage: $0 file1 [file2 file3 ...]"
+    exit 1
+fi
+
+# Iterate through provided files/directories
+for item in "$@"; do
+    # Check if the item exists
+    if [ -e "$item" ]; then
+        # If it's a directory, find all files inside and process them
+        if [ -d "$item" ]; then
+            find "$item" -type f -exec bash -c 'get_allowed_users "$0"' {} \;
+        else
+            # If it's a file, process it directly
+            get_allowed_users "$item"
+        fi
+    else
+        echo "Error: $item not found."
+    fi
+done
