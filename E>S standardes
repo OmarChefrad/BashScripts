@@ -1,0 +1,24 @@
+#!/bin/bash
+
+# This script takes input from the user, performs a simple operation,
+# and outputs the result to standard output or standard error.
+
+echo "Enter a number: "
+read number
+
+# Check if the input is a number
+if ! [[ "$number" =~ ^[0-9]+$ ]]; then
+    echo "Error: Not a valid number." >&2  # Send error message to stderr
+    exit 1
+fi
+
+# Perform a simple operation (squaring the input)
+result=$((number * number))
+
+# Output the result to standard output
+echo "The square of $number is: $result"
+
+# Demonstrate redirecting stderr to a file
+echo "This is an error message." >&2 > error.log
+
+echo "Script completed successfully."
